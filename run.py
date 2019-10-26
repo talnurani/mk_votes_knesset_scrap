@@ -10,8 +10,13 @@ import DBManager
 
 KNESSET_VOTE_SEARCH_PAGE = "https://www.knesset.gov.il/vote/heb/vote_search.asp"
 FAIL_URLS = []
-MAIN_DRIVER = webdriver.Chrome()
+MAIN_DRIVER = None
 MKS20 = DBManager.create_mk_party_dict()
+
+def main_driver():
+    if not MAIN_DRIVER:
+        MAIN_DRIVER = webdriver.Chrome()
+    return MAIN_DRIVER
 
 def get_html_by_url(web_url=""):
     """
@@ -23,8 +28,8 @@ def get_html_by_url(web_url=""):
     """
     # TODO: validate exceptions of INTENRT connection....
     if web_url != "":
-        MAIN_DRIVER.get(web_url)
-    return html.fromstring(MAIN_DRIVER.page_source)
+        main_driver().get(web_url)
+    return html.fromstring(main_driver().page_source)
 
 def vote_parse(vote_str):
     """
@@ -103,14 +108,14 @@ def find_vote_pages_urls(start_date, end_date):
     :rtype: list (of tuple (url, date))
     """
     # TODO: what if I have exceptions...
-    MAIN_DRIVER.get(KNESSET_VOTE_SEARCH_PAGE)
+    main_driver().get(KNESSET_VOTE_SEARCH_PAGE)
     # get the select elements:
-    from_year_elem = Select(MAIN_DRIVER.find_element_by_name("dtFmYY"))
-    from_month_elem = Select(MAIN_DRIVER.find_element_by_name("dtFmMM"))
-    from_day_elem = Select(MAIN_DRIVER.find_element_by_name("dtFmDD"))
-    to_year_elem = Select(MAIN_DRIVER.find_element_by_name("dtToYY"))
-    to_month_elem = Select(MAIN_DRIVER.find_element_by_name("dtToMM"))
-    to_day_elem = Select(MAIN_DRIVER.find_element_by_name("dtToDD"))
+    from_year_elem = Select(main_driver().find_element_by_name("dtFmYY"))
+    from_month_elem = Select(main_driver().find_element_by_name("dtFmMM"))
+    from_day_elem = Select(main_driver().find_element_by_name("dtFmDD"))
+    to_year_elem = Select(main_driver().find_element_by_name("dtToYY"))
+    to_month_elem = Select(main_driver().find_element_by_name("dtToMM"))
+    to_day_elem = Select(main_driver().find_element_by_name("dtToDD"))
     # set values:
     from_year_elem.select_by_value(str(start_date.year))
     from_month_elem.select_by_value(str(start_date.month))
@@ -119,14 +124,14 @@ def find_vote_pages_urls(start_date, end_date):
     to_month_elem.select_by_value(str(end_date.month))
     to_day_elem.select_by_value(str(end_date.day))
     #enter search:
-    MAIN_DRIVER.find_element_by_id("Image3").click() #send_keys(Keys.ENTER)
+    main_driver().find_element_by_id("Image3").click() #send_keys(Keys.ENTER)
     
     urls_list = []
     while True:
         body = get_html_by_url()
         #DUBUG:
         # page_problem = body.find_element_by_name("center")
-        if str(MAIN_DRIVER.page_source).find("תקלה בהעברת המשתנים.") != -1:
+        if str(main_driver().page_source).find("תקלה בהעברת המשתנים.") != -1:
             raise Exception("תקלה בהעברת המשתנים...")
 
         urls_elements = body.xpath("//a[@class='DataText6']")
@@ -137,7 +142,7 @@ def find_vote_pages_urls(start_date, end_date):
             urls_list.append((url, date))
         
         try:
-            MAIN_DRIVER.find_element_by_id("Image2").click()
+            main_driver().find_element_by_id("Image2").click()
         except:
             print("Finish the urls...")
             print("Total {0} pages found.".format(len(urls_list)))
@@ -208,4 +213,4 @@ if __name__ == "__main__":
         pass
     finally:
         # Always close when done
-        MAIN_DRIVER.close()
+        main_driver().close()
