@@ -188,10 +188,8 @@ def parse_all_between(start_date, end_date):
     print("Total {0}/{1} pages inserted!".format(success, len(urls)))
     return success == len(urls)
 
-def start():
+def start(from_date, to_date):
     start_time = time.time()
-    from_date = date(2018, 12, 1)
-    to_date = date(2019, 1, 4)
     ok = parse_all_between(from_date, to_date)
     if ok:
         print("Done without fails!")
@@ -202,8 +200,10 @@ def start():
     print("TOTAL TIME: {0}".format(end_time - start_time))
 
 if __name__ == "__main__":
+    from_date = date(2018, 12, 1)
+    to_date = date(2019, 1, 4)
     try:
-        start()
+        start(from_date, to_date)
     except:
         pass
     finally:
