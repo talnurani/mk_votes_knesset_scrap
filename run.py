@@ -10,13 +10,15 @@ import DBManager
 
 KNESSET_VOTE_SEARCH_PAGE = "https://www.knesset.gov.il/vote/heb/vote_search.asp"
 FAIL_URLS = []
-MAIN_DRIVER = None
 MKS20 = DBManager.create_mk_party_dict()
 
+class Resources:
+    main_driver = None
+
 def main_driver():
-    if not MAIN_DRIVER:
-        MAIN_DRIVER = webdriver.Chrome()
-    return MAIN_DRIVER
+    if not Resources.main_driver:
+        Resources.main_driver = webdriver.Chrome()
+    return Resources.main_driver
 
 def get_html_by_url(web_url=""):
     """
